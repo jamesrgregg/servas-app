@@ -29,6 +29,9 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/mysql
+            - name: config
+              mountPath: /etc/mysql/conf.d/my.cnf
+              subPath: my.cnf
       volumes:
         - name: data
           {{- if .Values.persistence.enabled }}
@@ -37,3 +40,6 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        - name: config
+          configMap:
+            name: mariadb-config

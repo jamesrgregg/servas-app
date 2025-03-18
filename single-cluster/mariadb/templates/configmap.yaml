@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mariadb-config
+  labels:
+    app: mariadb
+data:
+  my.cnf: |
+    [mysqld]
+    require_secure_transport=OFF
+    ssl=0 
