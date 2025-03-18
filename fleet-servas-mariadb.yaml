@@ -8,3 +8,4 @@ spec:
   paths:
   - mariadb
   - servas
+  - busybox

@@ -7,7 +7,7 @@ namespace: demo-project
 # Custom helm options
 helm:
   # The release name to use. If empty a generated release name will be used
-  releaseName: mariadb
+  releaseName: busybox
 
   # The directory of the chart in the repo.  Also any valid go-getter supported
   # URL can be used there is specify where to download the chart from.
