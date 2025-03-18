@@ -41,11 +41,7 @@ helm:
       runAsUser: 1000
       fsGroup: 1000
     env:
-      - name: MARIADB_ROOT_PASSWORD
-        value: "rootpassword"
-      - name: MARIADB_USER
-        value: "servas"
-      - name: MARIADB_PASSWORD
-        value: "servas"
-      - name: MARIADB_DATABASE
-        value: "servas"
+      MARIADB_ROOT_PASSWORD: password
+      MARIADB_USER: servas_db_user
+      MARIADB_PASSWORD: password
+      MARIADB_DATABASE: servas_db

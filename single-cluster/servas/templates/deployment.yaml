@@ -16,35 +16,15 @@ spec:
     spec:
       containers:
         - name: servas
-          image: "beromir/servas:latest"
-          imagePullPolicy: IfNotPresent
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
-          env:
-            - name: APP_NAME
-              value: "servas"
-            - name: APP_ENV
-              value: "production"
-            - name: APP_DEBUG
-              value: "false"
-            - name: APP_URL
-              value: "http://localhost"
-            - name: SERVAS_ENABLE_REGISTRATION
-              value: "true"
-            - name: DB_CONNECTION
-              value: "mysql"
-            - name: DB_HOST
-              value: "mariadb"
-            - name: DB_PORT
-              value: "3306"
-            - name: DB_DATABASE
-              value: "servas"
-            - name: DB_USERNAME
-              value: "servas"
-            - name: DB_PASSWORD
-              value: "servas"
+          envFrom:
+            - configMapRef:
+                name: servas-env
           volumeMounts:
             - name: env-file
               mountPath: /app/.env
