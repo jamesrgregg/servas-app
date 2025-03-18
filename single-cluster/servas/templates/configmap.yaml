@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: servas-env
+  labels:
+    app: servas
+data:
+  .env: |
+    APP_NAME=servas
+    APP_ENV=production
+    APP_DEBUG=false
+    APP_URL=http://localhost
+    SERVAS_ENABLE_REGISTRATION=true
+    DB_CONNECTION=mysql
+    DB_HOST=mariadb
+    DB_PORT=3306
+    DB_DATABASE=servas
+    DB_USERNAME=servas
+    DB_PASSWORD=servas
+    APP_KEY=

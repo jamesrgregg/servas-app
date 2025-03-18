@@ -45,3 +45,11 @@ spec:
               value: "servas"
             - name: DB_PASSWORD
               value: "servas"
+          volumeMounts:
+            - name: env-file
+              mountPath: /app/.env
+              subPath: .env
+      volumes:
+        - name: env-file
+          configMap:
+            name: servas-env
