@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: servas-key-generator
+  labels:
+    app: servas
+spec:
+  template:
+    spec:
+      containers:
+      - name: key-generator
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          APP_KEY=$(php artisan key:generate --show)
+          kubectl create secret generic servas-key \
+            --from-literal=APP_KEY="$APP_KEY" \
+            --dry-run=client -o yaml | kubectl apply -f -
+        envFrom:
+        - configMapRef:
+            name: servas-env
+      restartPolicy: Never 
