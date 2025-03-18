@@ -5,6 +5,7 @@ metadata:
   namespace: demo-project
 spec:
   repo: https://github.com/jamesrgregg/servas-app
+  branch: main
   paths:
     - single-cluster/mariadb
     - single-cluster/servas
