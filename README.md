@@ -7,6 +7,7 @@ References:
 - [bolt.diy](https://github.com/stackblitz-labs/bolt.diy)
 - [cursor.ai](https://www.cursor.com/)
 - [Fleet](https://fleet.rancher.io/quickstart)
+- [Kompose](https://kompose.io)
 
 This will deploy the [Servas and Mariadb](https://github.com/kubernetes/examples/tree/master/guestbook/) application as
 packaged as a Helm charts.
