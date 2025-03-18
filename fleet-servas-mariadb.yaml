@@ -10,6 +10,3 @@ spec:
     - single-cluster/mariadb
     - single-cluster/servas
     - single-cluster/busybox
-  targets:
-    - clusterSelector: {}
-      namespace: demo-project
