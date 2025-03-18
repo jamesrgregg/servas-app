@@ -16,7 +16,7 @@ The solution will be deployed via Fleet which will be set up in a local Minikube
 ```
 .
 ├── README.md
-├── fleet-gitrepo-servas-mariadb.yaml
+├── fleet-servas-mariadb.yaml
 ├── mariadb
 │   ├── Chart.yaml
 │   ├── fleet.yaml
