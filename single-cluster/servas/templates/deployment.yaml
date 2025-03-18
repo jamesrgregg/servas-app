@@ -25,6 +25,12 @@ spec:
           envFrom:
             - configMapRef:
                 name: servas-env
+          env:
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: servas-key
+                  key: APP_KEY
           volumeMounts:
             - name: env-file
               mountPath: /app/.env
