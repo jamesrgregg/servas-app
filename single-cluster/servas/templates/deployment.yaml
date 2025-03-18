@@ -14,6 +14,7 @@ spec:
       labels:
         app: servas
     spec:
+      serviceAccountName: servas-sa
       initContainers:
         - name: wait-for-secret
           image: bitnami/kubectl:latest
