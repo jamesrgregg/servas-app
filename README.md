@@ -73,6 +73,7 @@ References:
 - [cursor.ai](https://www.cursor.com/)
 - [Fleet](https://fleet.rancher.io/quickstart)
 - [Fleet Uninstall - Cleanup](https://fleet.rancher.io/uninstall)
+- [Fleet: Single Cluster - Guestbook Deployment](https://github.com/rancher/fleet-examples/tree/master/single-cluster/helm)
 - [Kompose](https://kompose.io)
 - [Reusing Existing Kubernetes Secrets in Helm Templates](https://blog.cloudcover.ch/posts/reusing-existing-kubernetes-secrets-in-helm-templates/)
 - [A Hands-On Guide to Kubernetes Jobs ](https://medium.com/@muppedaanvesh/a-hand-on-guide-to-kubernetes-jobs-%EF%B8%8F-aa2edbb061ea)
