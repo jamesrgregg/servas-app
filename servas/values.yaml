@@ -1,0 +1,66 @@
+# Default values for servas.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 1
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: beromir/servas
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+# This is for setting Kubernetes Labels to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+labels: 
+  environment: development
+  app: frontend
+
+# securityContext:
+#   runAsUser: 1000
+#   fsGroup: 1000
+
+persistence:
+  enabled: true
+  size: 1Gi
+
+env:
+  APP_NAME: servas
+  APP_ENV: development
+  APP_DEBUG: "false"
+  APP_URL: http://localhost
+  SERVAS_ENABLE_REGISTRATION: "true"
+  DB_CONNECTION: mysql
+  DB_HOST: db
+  DB_PORT: 3306
+  DB_DATABASE: servas_db
+  DB_USERNAME: servas_db_user
+  DB_PASSWORD: password
+
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: NodePort
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 80
+
+# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+# livenessProbe:
+#   httpGet:
+#     path: /
+#     port: http
+# readinessProbe:
+#   httpGet:
+#     path: /
+#     port: http
+
+# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+# autoscaling:
+#   enabled: false
+#   minReplicas: 1
+#   maxReplicas: 2
+#   targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
