@@ -6,6 +6,6 @@ metadata:
 spec:
   repo: https://github.com/jamesrgregg/servas-app
   paths:
-  - mariadb
-  - servas
-  - busybox
+    - single-cluster/mariadb
+    - single-cluster/servas
+    - single-cluster/busybox

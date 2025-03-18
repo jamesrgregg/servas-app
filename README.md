@@ -17,29 +17,30 @@ The busybox container will be used as a side car to allow for app key generation
 ```
 .
 ├── README.md
-├── busybox
-│   ├── chart.yaml
-│   ├── fleet.yaml
-│   ├── templates
-│   │   └── deployment.yaml
-│   └── values.yaml
 ├── fleet-servas-mariadb.yaml
-├── mariadb
-│   ├── chart.yaml
-│   ├── fleet.yaml
-│   ├── templates
-│   │   ├── deployment.yaml
-│   │   ├── pvc.yaml
-│   │   └── service.yaml
-│   └── values.yaml
-└── servas
-    ├── chart.yaml
-    ├── fleet.yaml
-    ├── templates
-    │   ├── configmap.yaml
-    │   ├── deployment.yaml
-    │   └── service.yaml
-    └── values.yaml
+└── single-cluster
+    ├── busybox
+    │   ├── chart.yaml
+    │   ├── fleet.yaml
+    │   ├── templates
+    │   │   └── deployment.yaml
+    │   └── values.yaml
+    ├── mariadb
+    │   ├── chart.yaml
+    │   ├── fleet.yaml
+    │   ├── templates
+    │   │   ├── deployment.yaml
+    │   │   ├── pvc.yaml
+    │   │   └── service.yaml
+    │   └── values.yaml
+    └── servas
+        ├── chart.yaml
+        ├── fleet.yaml
+        ├── templates
+        │   ├── configmap.yaml
+        │   ├── deployment.yaml
+        │   └── service.yaml
+        └── values.yaml
 
 ```
 
@@ -52,9 +53,9 @@ metadata:
 spec:
   repo: https://github.com/jamesrgregg/servas-app
   paths:
-    - mariadb
-    - servas
-    - busybox
+    - single-cluster/mariadb
+    - single-cluster/servas
+    - single-cluster/busybox
 ```
 Configure Kubernetes cluster for Fleet deployments following the [documentation](https://fleet.rancher.io/quickstart).
 
