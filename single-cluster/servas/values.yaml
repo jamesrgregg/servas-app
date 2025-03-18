@@ -31,7 +31,7 @@ env:
   APP_NAME: servas
   APP_ENV: development
   APP_DEBUG: "false"
-  APP_URL: http://localhost
+  APP_URL: http://localhost/register
   SERVAS_ENABLE_REGISTRATION: "true"
   DB_CONNECTION: mysql
   DB_HOST: db
