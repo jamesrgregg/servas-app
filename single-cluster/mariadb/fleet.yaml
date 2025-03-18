@@ -30,6 +30,10 @@ helm:
   # Custom values that will be passed as values.yaml to the installation
   values:
     replicaCount: 1
+    image:
+      repository: mariadb
+      tag: "10.6"
+      pullPolicy: IfNotPresent
     persistence:
       enabled: true
       size: 1Gi
@@ -37,7 +41,11 @@ helm:
       runAsUser: 1000
       fsGroup: 1000
     env:
-      MARIADB_ROOT_PASSWORD: password
-      MARIADB_USER: servas_db_user
-      MARIADB_PASSWORD: password
-      MARIADB_DATABASE: servas_db
+      - name: MARIADB_ROOT_PASSWORD
+        value: "rootpassword"
+      - name: MARIADB_USER
+        value: "servas"
+      - name: MARIADB_PASSWORD
+        value: "servas"
+      - name: MARIADB_DATABASE
+        value: "servas"
