@@ -2,7 +2,7 @@ kind: GitRepo
 apiVersion: fleet.cattle.io/v1alpha1
 metadata:
   name: servas
-  namespace: fleet-local
+  namespace: demo-project
 spec:
   repo: https://github.com/jamesrgregg/servas-app
   paths:
