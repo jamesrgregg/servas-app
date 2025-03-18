@@ -4,10 +4,14 @@ Helm chart for the Servas self-hosted bookmark manager application.
 
 
 ## Project Description:
-This will deploy the [Servas and Mariadb](https://github.com/kubernetes/examples/tree/master/guestbook/) application to Kubernetes single-cluster (minikube).  
+This will deploy the [Servas and Mariadb](https://github.com/beromir/Servas/tree/main/docker/mariadb-example) application to Kubernetes single-cluster (minikube).  
+
 The original docker-compose file was used as the base for converting to helm charts using several approaches including AI generated helm charts.
+
 The solution will be deployed via Fleet which will be set up in a local Minikube cluster.
+
 The service defined for the `servas-service` is set as a `NodePort` and will require port-forward command (manual) to allow access to to the internal frontend servas-service endpoint.
+
 The busybox container will be used as a side car to allow for app key generation for the servas app.
 
 ```
