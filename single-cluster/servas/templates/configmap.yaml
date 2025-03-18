@@ -17,4 +17,5 @@ data:
     DB_DATABASE=servas
     DB_USERNAME=servas
     DB_PASSWORD=servas
+    MYSQL_ATTR_SSL_VERIFY_SERVER_CERT=false
     APP_KEY=
