@@ -2,23 +2,27 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: key-generator-sa
+  namespace: demo-project
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: secret-creator
+  namespace: demo-project
 rules:
 - apiGroups: [""]
   resources: ["secrets"]
-  verbs: ["create", "get", "update"]
+  verbs: ["create", "get", "update", "delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: key-generator-secret-creator
+  namespace: demo-project
 subjects:
 - kind: ServiceAccount
   name: key-generator-sa
+  namespace: demo-project
 roleRef:
   kind: Role
   name: secret-creator
@@ -28,6 +32,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: servas-key-generator
+  namespace: demo-project
   labels:
     app: servas
 spec:
@@ -40,17 +45,29 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
         - |
+          # Delete existing secret if it exists
+          curl -X DELETE -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" -k https://kubernetes.default.svc/api/v1/namespaces/demo-project/secrets/servas-key || true
+          
+          # Generate new key
           APP_KEY=$(php artisan key:generate --show)
           echo "Generated APP_KEY: $APP_KEY"
+          
+          # Create new secret
           cat > /tmp/secret.yaml << EOF
           apiVersion: v1
           kind: Secret
           metadata:
             name: servas-key
+            namespace: demo-project
           type: Opaque
           stringData:
             APP_KEY: "$APP_KEY"
           EOF
+          
+          # Apply the secret
           cat /tmp/secret.yaml | curl -X POST -H "Content-Type: application/yaml" -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" -k https://kubernetes.default.svc/api/v1/namespaces/demo-project/secrets -d @-
+          
+          # Verify the secret was created with data
+          curl -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" -k https://kubernetes.default.svc/api/v1/namespaces/demo-project/secrets/servas-key
       restartPolicy: Never
   backoffLimit: 4 

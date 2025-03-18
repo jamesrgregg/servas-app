@@ -20,7 +20,7 @@ spec:
           command: ['/bin/sh', '-c']
           args:
             - |
-              until kubectl get secret servas-key; do
+              until kubectl get secret servas-key -n demo-project; do
                 echo "Waiting for servas-key secret to be created..."
                 sleep 2
               done
