@@ -41,33 +41,18 @@ spec:
       serviceAccountName: key-generator-sa
       containers:
       - name: key-generator
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-        command: ["/bin/sh", "-c"]
+        image: bitnami/kubectl:latest
+        command: ['/bin/sh', '-c']
         args:
         - |
-          # Delete existing secret if it exists
-          curl -X DELETE -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" -k https://kubernetes.default.svc/api/v1/namespaces/demo-project/secrets/servas-key || true
-          
-          # Generate new key
-          APP_KEY=$(php artisan key:generate --show)
+          # Generate the key using the servas container
+          APP_KEY=$(kubectl run -n demo-project temp-pod --image={{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }} --restart=Never --command -- php artisan key:generate --show)
           echo "Generated APP_KEY: $APP_KEY"
           
-          # Create new secret
-          cat > /tmp/secret.yaml << EOF
-          apiVersion: v1
-          kind: Secret
-          metadata:
-            name: servas-key
-            namespace: demo-project
-          type: Opaque
-          stringData:
-            APP_KEY: "$APP_KEY"
-          EOF
+          # Create the secret
+          kubectl create secret generic servas-key -n demo-project --from-literal=APP_KEY="$APP_KEY" --dry-run=client -o yaml | kubectl apply -f -
           
-          # Apply the secret
-          cat /tmp/secret.yaml | curl -X POST -H "Content-Type: application/yaml" -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" -k https://kubernetes.default.svc/api/v1/namespaces/demo-project/secrets -d @-
-          
-          # Verify the secret was created with data
-          curl -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" -k https://kubernetes.default.svc/api/v1/namespaces/demo-project/secrets/servas-key
+          # Clean up the temp pod
+          kubectl delete pod temp-pod -n demo-project
       restartPolicy: Never
   backoffLimit: 4 
