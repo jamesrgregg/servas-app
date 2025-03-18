@@ -29,4 +29,15 @@ helm:
 
   # Custom values that will be passed as values.yaml to the installation
   values:
-    replicas: 1
+    replicaCount: 1
+    persistence:
+      enabled: true
+      size: 1Gi
+    securityContext:
+      runAsUser: 1000
+      fsGroup: 1000
+    env:
+      MARIADB_ROOT_PASSWORD: password
+      MARIADB_USER: servas_db_user
+      MARIADB_PASSWORD: password
+      MARIADB_DATABASE: servas_db
