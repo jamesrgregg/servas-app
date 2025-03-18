@@ -81,3 +81,4 @@ References:
 ## Video Training / Tutorials
  - [Kubernetes Master Class - Rancher Continuous Delivery with Fleet](https://www.youtube.com/watch?v=lNeX_PxnzLM&t=15s)
  - [Using Rancher Fleet and GitHub Actions for GitOps Releases](https://www.youtube.com/watch?v=kagSBoInW6g&t=556s)
+ - [DevOps Toolkit: Rancher Fleet](https://gist.github.com/vfarcic/eabe08e8e147fb2ce51afc520efc0cef)
