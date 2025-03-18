@@ -47,7 +47,7 @@ The busybox container will be used as a side car to allow for app key generation
 kind: GitRepo
 apiVersion: fleet.cattle.io/v1alpha1
 metadata:
-  name: helm
+  name: servas
   namespace: fleet-local
 spec:
   repo: https://github.com/jamesrgregg/servas-app
