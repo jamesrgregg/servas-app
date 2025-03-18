@@ -5,10 +5,10 @@ metadata:
   labels:
     app: mariadb
 spec:
-  type: {{ .Values.service.type }}
+  type: ClusterIP
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: mysql
+    - port: 3306
+      targetPort: 3306
       protocol: TCP
       name: mysql
   selector:
