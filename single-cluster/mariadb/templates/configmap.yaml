@@ -8,4 +8,9 @@ data:
   my.cnf: |
     [mysqld]
     require_secure_transport=OFF
-    ssl=0 
+    ssl=0
+    skip_ssl=1
+    
+    [client]
+    ssl=0
+    ssl-verify-server-cert=0 
