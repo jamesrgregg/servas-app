@@ -25,7 +25,14 @@ spec:
               containerPort: 3306
               protocol: TCP
           env:
-            {{- toYaml .Values.env | nindent 12 }}
+            - name: MARIADB_ROOT_PASSWORD
+              value: "{{ .Values.env.MARIADB_ROOT_PASSWORD }}"
+            - name: MARIADB_USER
+              value: "{{ .Values.env.MARIADB_USER }}"
+            - name: MARIADB_PASSWORD
+              value: "{{ .Values.env.MARIADB_PASSWORD }}"
+            - name: MARIADB_DATABASE
+              value: "{{ .Values.env.MARIADB_DATABASE }}"
           volumeMounts:
             - name: data
               mountPath: /var/lib/mysql
