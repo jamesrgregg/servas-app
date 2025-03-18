@@ -4,6 +4,9 @@ metadata:
   name: {{ include "mariadb.fullname" . }}
   labels:
     {{- include "mariadb.labels" . | nindent 4 }}
+    {{- with .Values.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -18,8 +21,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "mariadb.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
+        {{- include "mariadb.selectorLabels" . | nindent 8 }}
+        {{- with .Values.labels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
@@ -41,7 +44,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
+            - name: mysql
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           {{- with .Values.livenessProbe }}
@@ -60,9 +63,20 @@ spec:
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
       {{- with .Values.volumes }}
       volumes:
-        {{- toYaml . | nindent 8 }}
+        - name: data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "mariadb.fullname" . }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
