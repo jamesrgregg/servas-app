@@ -12,7 +12,7 @@ The solution will be deployed via Fleet which will be set up in a local Minikube
 
 The service defined for the `servas-service` is set as a `NodePort` and will require port-forward command (manual) to allow access to to the internal frontend servas-service endpoint.
 
-The busybox container will be used as a side car to allow for app key generation for the servas app.
+The busybox container will be used as a side car to allow for debugging. 
 
 ```
 .

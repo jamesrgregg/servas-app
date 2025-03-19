@@ -37,11 +37,11 @@ env:
   APP_URL: http://localhost/register
   SERVAS_ENABLE_REGISTRATION: "true"
   DB_CONNECTION: mysql
-  DB_HOST: db
+  DB_HOST: mariadb
   DB_PORT: 3306
-  DB_DATABASE: servas_db
-  DB_USERNAME: servas_db_user
-  DB_PASSWORD: password
+  DB_DATABASE: servas
+  DB_USERNAME: servas
+  DB_PASSWORD: servas
 
 # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
 service:
