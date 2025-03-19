@@ -16,37 +16,35 @@ spec:
     spec:
       serviceAccountName: servas-sa
       initContainers:
-        - name: wait-for-secret
-          image: bitnami/kubectl:latest
-          command: ['/bin/sh', '-c']
-          args:
-            - |
-              until kubectl get secret servas-key -n demo-project; do
-                echo "Waiting for servas-key secret to be created..."
-                sleep 2
-              done
-        - name: load-schema
+        - name: wait-for-db
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           command: ['/bin/sh', '-c']
           args:
             - |
-              # Wait for database to be ready
               until nc -z mariadb 3306; do
                 echo "Waiting for MariaDB to be ready..."
                 sleep 2
               done
+        - name: init-app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ['/bin/sh', '-c']
+          args:
+            - |
+              cd /app
+              php artisan config:clear
+              php artisan cache:clear
               
-              # Load schema using environment variables directly
-              mysql -u$DB_USERNAME -p$DB_PASSWORD -h$DB_HOST -P$DB_PORT $DB_DATABASE --ssl-mode=DISABLED < /app/database/schema/mysql-schema.dump
-              
-              # If the above fails, try with explicit disable flags
-              if [ $? -ne 0 ]; then
-                echo "First attempt failed, trying with explicit SSL disable..."
-                mysql -u$DB_USERNAME -p$DB_PASSWORD -h$DB_HOST -P$DB_PORT $DB_DATABASE --ssl=0 --ssl-verify-server-cert=0 < /app/database/schema/mysql-schema.dump
-              fi
+              # Run migrations and seed the database
+              php artisan migrate --force
           envFrom:
             - configMapRef:
                 name: servas-env
+          env:
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: servas-key
+                  key: APP_KEY
       containers:
         - name: servas
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
