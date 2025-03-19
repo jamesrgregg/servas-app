@@ -9,7 +9,7 @@ spec:
       serviceAccountName: key-generator-sa
       containers:
       - name: key-generator
-        image: servas:latest
+        image: beromir/servas:latest
         command:
         - /bin/sh
         - -c
