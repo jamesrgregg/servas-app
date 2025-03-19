@@ -11,8 +11,8 @@ metadata:
   namespace: demo-project
 rules:
 - apiGroups: [""]
-  resources: ["secrets", "pods"]
-  verbs: ["create", "get", "update", "delete", "patch", "list", "watch"]
+  resources: ["secrets"]
+  verbs: ["patch", "get"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

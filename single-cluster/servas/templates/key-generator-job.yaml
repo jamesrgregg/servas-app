@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: servas-key-generator
+  namespace: demo-project
+spec:
+  template:
+    spec:
+      serviceAccountName: key-generator-sa
+      containers:
+      - name: key-generator
+        image: servas:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Wait for servas pod to be ready
+          sleep 10
+          # Generate and store key
+          APP_KEY=$(php artisan key:generate --show --force)
+          # Install kubectl
+          wget -O /bin/kubectl "https://dl.k8s.io/release/$(wget -qO- https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x /bin/kubectl
+          # Update secret
+          kubectl patch secret servas-secret -p="{\"data\":{\"APP_KEY\":\"$(echo -n $APP_KEY | base64)\"}}"
+          # Restart servas deployment
+          kubectl rollout restart deployment/servas
+      restartPolicy: Never 

@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: servas
+  namespace: demo-project
   labels:
     app: servas
 spec:
@@ -17,48 +18,11 @@ spec:
       serviceAccountName: servas-sa
       initContainers:
         - name: wait-for-db
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          command: ['/bin/sh', '-c']
-          args:
-            - |
-              until nc -z mariadb 3306; do
-                echo "Waiting for MariaDB to be ready..."
-                sleep 2
-              done
-        - name: init-app
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          command: ['/bin/sh', '-c']
-          args:
-            - |
-              cd /app
-              
-              # Generate APP_KEY if not set
-              if [ -z "$APP_KEY" ]; then
-                echo "Generating new APP_KEY..."
-                export APP_KEY=$(php artisan key:generate --show)
-                echo "APP_KEY=$APP_KEY" >> /app/.env
-              fi
-              
-              php artisan config:clear
-              php artisan cache:clear
-              php artisan migrate --force
-          envFrom:
-            - configMapRef:
-                name: servas-env
-          env:
-            - name: APP_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: servas-key
-                  key: APP_KEY
-                  optional: true
-          volumeMounts:
-            - name: env-file
-              mountPath: /app/.env
-              subPath: .env
+          image: busybox:latest
+          command: ['sh', '-c', 'until nc -z mariadb 3306; do echo waiting for mariadb; sleep 2; done;']
       containers:
         - name: servas
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: servas:latest
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -71,8 +35,17 @@ spec:
             - name: APP_KEY
               valueFrom:
                 secretKeyRef:
-                  name: servas-key
+                  name: servas-secret
                   key: APP_KEY
+                  optional: true
+            - name: MYSQL_ATTR_SSL_VERIFY_SERVER_CERT
+              value: "false"
+            - name: MYSQL_SSL_REQUIRED
+              value: "false"
+            - name: DB_SSL
+              value: "false"
+            - name: DB_SSL_VERIFY
+              value: "false"
           volumeMounts:
             - name: env-file
               mountPath: /app/.env

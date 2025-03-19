@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mariadb
+  namespace: demo-project
   labels:
     app: mariadb
 spec:
@@ -33,12 +34,19 @@ spec:
               value: "{{ .Values.env.MARIADB_PASSWORD }}"
             - name: MARIADB_DATABASE
               value: "{{ .Values.env.MARIADB_DATABASE }}"
+            - name: MYSQL_SSL_CERT
+              value: "false"
+            - name: MYSQL_SSL
+              value: "false"
           volumeMounts:
             - name: data
               mountPath: /var/lib/mysql
             - name: config
               mountPath: /etc/mysql/conf.d/my.cnf
               subPath: my.cnf
+          args:
+            - --ssl=0
+            - --skip-ssl
       volumes:
         - name: data
           {{- if .Values.persistence.enabled }}

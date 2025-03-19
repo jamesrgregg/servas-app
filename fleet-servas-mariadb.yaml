@@ -9,4 +9,3 @@ spec:
   paths:
     - single-cluster/mariadb
     - single-cluster/servas
-    - single-cluster/busybox
