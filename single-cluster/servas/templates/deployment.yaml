@@ -25,6 +25,28 @@ spec:
                 echo "Waiting for servas-key secret to be created..."
                 sleep 2
               done
+        - name: load-schema
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ['/bin/sh', '-c']
+          args:
+            - |
+              # Wait for database to be ready
+              until nc -z mariadb 3306; do
+                echo "Waiting for MariaDB to be ready..."
+                sleep 2
+              done
+              
+              # Load schema using environment variables directly
+              mysql -u$DB_USERNAME -p$DB_PASSWORD -h$DB_HOST -P$DB_PORT $DB_DATABASE --ssl-mode=DISABLED < /app/database/schema/mysql-schema.dump
+              
+              # If the above fails, try with explicit disable flags
+              if [ $? -ne 0 ]; then
+                echo "First attempt failed, trying with explicit SSL disable..."
+                mysql -u$DB_USERNAME -p$DB_PASSWORD -h$DB_HOST -P$DB_PORT $DB_DATABASE --ssl=0 --ssl-verify-server-cert=0 < /app/database/schema/mysql-schema.dump
+              fi
+          envFrom:
+            - configMapRef:
+                name: servas-env
       containers:
         - name: servas
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
