@@ -16,16 +16,44 @@ spec:
       labels:
         app: busybox
     spec:
+      serviceAccountName: key-generator-sa
       containers:
-      - name: busybox-container
+      - name: busybox
         image: busybox:latest
-        # Keep the container running
-        command: [ "/bin/sh", "-c", "--" ]
-        args: [ "while true; do sleep 30; done;" ]
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Install kubectl
+          wget -O /bin/kubectl "https://dl.k8s.io/release/$(wget -qO- https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x /bin/kubectl
+
+          # Set up kubeconfig using service account token
+          export KUBECONFIG=/tmp/kubeconfig
+          kubectl config set-cluster default --server=https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          kubectl config set-credentials sa --token=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+          kubectl config set-context default --cluster=default --user=sa
+          kubectl config use-context default
+
+          # Wait for servas pod to be ready
+          until kubectl get pod -l app=servas -n demo-project -o jsonpath='{.items[0].status.phase}' | grep -q "Running"; do
+            echo "Waiting for servas pod..."
+            sleep 5
+          done
+
+          # Generate key and update secret
+          SERVAS_POD=$(kubectl get pod -l app=servas -n demo-project -o jsonpath='{.items[0].metadata.name}')
+          APP_KEY=$(kubectl exec $SERVAS_POD -n demo-project -- php artisan key:generate --show)
+          
+          # Update the secret
+          kubectl patch secret servas-secret -n demo-project -p="{\"data\":{\"APP_KEY\":\"$(echo -n $APP_KEY | base64)\"}}"
+
+          # Keep container running for debugging
+          tail -f /dev/null
         resources:
           requests:
-            cpu: 30m
-            memory: 64Mi
+            memory: "64Mi"
+            cpu: "100m"
           limits:
-            cpu: 100m
-            memory: 128Mi
+            memory: "128Mi"
+            cpu: "200m"
