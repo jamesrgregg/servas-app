@@ -20,6 +20,30 @@ spec:
         - name: wait-for-db
           image: busybox:latest
           command: ['sh', '-c', 'until nc -z mariadb 3306; do echo waiting for mariadb; sleep 2; done;']
+        - name: init-app
+          image: servas:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              php artisan config:clear
+              php artisan cache:clear
+              php artisan migrate --force --no-interaction
+          env:
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: servas-secret
+                  key: APP_KEY
+                  optional: true
+            - name: MYSQL_ATTR_SSL_VERIFY_SERVER_CERT
+              value: "false"
+            - name: MYSQL_SSL_REQUIRED
+              value: "false"
+            - name: DB_SSL
+              value: "false"
+            - name: DB_SSL_VERIFY
+              value: "false"
       containers:
         - name: servas
           image: beromir/servas:latest
