@@ -17,11 +17,8 @@ spec:
     spec:
       serviceAccountName: servas-sa
       initContainers:
-        - name: wait-for-db
-          image: busybox:latest
-          command: ['sh', '-c', 'until nc -z mariadb 3306; do echo waiting for mariadb; sleep 2; done;']
         - name: init-app
-          image: servas:latest
+          image: beromir/servas:latest
           command:
             - /bin/sh
             - -c
@@ -47,7 +44,7 @@ spec:
       containers:
         - name: servas
           image: beromir/servas:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 80
