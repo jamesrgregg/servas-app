@@ -14,15 +14,20 @@ spec:
         - /bin/sh
         - -c
         - |
-          # Wait for servas pod to be ready
-          sleep 10
-          # Generate and store key
+          # Generate key
           APP_KEY=$(php artisan key:generate --show --force)
+          
           # Install kubectl
           wget -O /bin/kubectl "https://dl.k8s.io/release/$(wget -qO- https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x /bin/kubectl
-          # Update secret
-          kubectl patch secret servas-secret -p="{\"data\":{\"APP_KEY\":\"$(echo -n $APP_KEY | base64)\"}}"
+          
+          # Create or update secret
+          if ! kubectl get secret servas-secret; then
+            kubectl create secret generic servas-secret --from-literal=APP_KEY="$APP_KEY"
+          else
+            kubectl patch secret servas-secret -p="{\"data\":{\"APP_KEY\":\"$(echo -n $APP_KEY | base64)\"}}"
+          fi
+          
           # Restart servas deployment
-          kubectl rollout restart deployment/servas
+          kubectl rollout restart deployment servas
       restartPolicy: Never 
