@@ -10,6 +10,7 @@ spec:
       containers:
       - name: key-generator
         image: beromir/servas:latest
+        imagePullPolicy: Always
         command:
         - /bin/sh
         - -c

@@ -47,7 +47,7 @@ spec:
       containers:
         - name: servas
           image: beromir/servas:latest
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 80
