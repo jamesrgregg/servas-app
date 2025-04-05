@@ -35,4 +35,18 @@ subjects:
 roleRef:
   kind: Role
   name: secret-creator
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: servas-rolebinding
+  namespace: demo-project
+subjects:
+- kind: ServiceAccount
+  name: servas-sa
+  namespace: demo-project
+roleRef:
+  kind: Role
+  name: servas-role
   apiGroup: rbac.authorization.k8s.io 
