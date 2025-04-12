@@ -24,14 +24,23 @@ spec:
             - /bin/sh
             - -c
             - |
+              # Create log directory and set permissions
+              mkdir -p /app/storage/logs
+              chmod -R 775 /app/storage
+              
+              # Enable error logging
+              echo "error_reporting = E_ALL" > /usr/local/etc/php/conf.d/error-logging.ini
+              echo "log_errors = On" >> /usr/local/etc/php/conf.d/error-logging.ini
+              echo "error_log = /app/storage/logs/php_errors.log" >> /usr/local/etc/php/conf.d/error-logging.ini
+              
               # Write environment variables to .env file
               printenv | grep -E '^(APP_KEY|APP_NAME|APP_ENV|APP_DEBUG|APP_URL|SERVAS_ENABLE_REGISTRATION|DB_CONNECTION|DB_HOST|DB_PORT|DB_DATABASE|DB_USERNAME|DB_PASSWORD|MYSQL_ATTR_SSL_VERIFY_SERVER_CERT|DB_SSL|DB_SSL_VERIFY)=' > /app/.env
 
-              # Clear and cache Laravel configuration
+              # Clear Laravel caches
               php artisan config:clear
               php artisan cache:clear
 
-              # Start the Laravel server
+              # Start Laravel
               php artisan serve --host=0.0.0.0 --port=80
           ports:
             - name: http
@@ -67,11 +76,11 @@ spec:
               value: "false"
             - name: DB_SSL_VERIFY
               value: "false"
-          volumeMounts:
-            - name: env-file
-              mountPath: /app/.env
-              subPath: .env
-      volumes:
-        - name: env-file
-          configMap:
-            name: servas-env
+      #     volumeMounts:
+      #       - name: env-file
+      #         mountPath: /app/.env
+      #         subPath: .env
+      # volumes:
+      #   - name: env-file
+      #     configMap:
+      #       name: servas-env
