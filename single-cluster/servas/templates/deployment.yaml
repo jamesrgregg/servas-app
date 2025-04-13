@@ -71,9 +71,10 @@ spec:
               php artisan view:clear
               
               # Run fresh migrations with seed
-              echo "Running database migrations..."
-              php artisan migrate:fresh --force --seed
-              
+              # php artisan migrate:fresh --force --seed
+              echo "Running database migrations without seed ..."
+              php artisan migrate:fresh --force
+
               # Start Laravel
               php artisan serve --host=0.0.0.0 --port=80 --verbose
           ports:
