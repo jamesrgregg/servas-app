@@ -1,4 +1,4 @@
-
+_Note: This was my first application converted from docker-compose to helm charts used as a learning opportunity for Kubernetes skills development_
 
 
 ## Blow it away and Start over
@@ -129,8 +129,114 @@ kubectl get pods -n demo-project -l app=servas
 ```
 
 3. **Consider Setting Up**
+- Secure the application properly  - TLS 
+- Secure the containers to run as non-root
 - Health checks
 - Resource limits
 - Horizontal Pod Autoscaling (HPA)
 - Regular database backups
 
+
+
+# Fix Laravel Database Migration and Composer Issues
+
+The logs show two main issues:
+1. `composer` command not found
+2. Duplicate entry error during migrations
+
+Let's update the deployment to fix these issues:
+
+````yaml
+spec:
+  template:
+    spec:
+      containers:
+        - name: servas
+          image: beromir/servas:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # Create directories and set permissions
+              mkdir -p /app/storage/logs
+              chmod -R 775 /app/storage
+              
+              # Enable error logging
+              echo "error_reporting = E_ALL" > /usr/local/etc/php/conf.d/error-logging.ini
+              echo "log_errors = On" >> /usr/local/etc/php/conf.d/error-logging.ini
+              echo "error_log = /app/storage/logs/php_errors.log" >> /usr/local/etc/php/conf.d/error-logging.ini
+              echo "display_errors = On" >> /usr/local/etc/php/conf.d/error-logging.ini
+              
+              # Disable MySQL SSL requirement (MariaDB syntax)
+              cat << EOF > /etc/my.cnf
+              [client]
+              ssl=0
+              ssl-verify-server-cert=0
+              EOF
+              
+              # Write environment variables to .env file
+              cat << EOF > /app/.env
+              APP_KEY="${APP_KEY}"
+              APP_NAME="${APP_NAME}"
+              APP_ENV="${APP_ENV}"
+              APP_DEBUG="${APP_DEBUG}"
+              APP_URL="${APP_URL}"
+              SERVAS_ENABLE_REGISTRATION="${SERVAS_ENABLE_REGISTRATION}"
+              DB_CONNECTION="${DB_CONNECTION}"
+              DB_HOST="${DB_HOST}"
+              DB_PORT="${DB_PORT}"
+              DB_DATABASE="${DB_DATABASE}"
+              DB_USERNAME="${DB_USERNAME}"
+              DB_PASSWORD="${DB_PASSWORD}"
+              MYSQL_ATTR_SSL_VERIFY_SERVER_CERT="${MYSQL_ATTR_SSL_VERIFY_SERVER_CERT}"
+              DB_SSL="${DB_SSL}"
+              DB_SSL_VERIFY="${DB_SSL_VERIFY}"
+              SESSION_DRIVER=file
+              EOF
+              
+              # Set proper permissions
+              chmod 644 /app/.env
+              
+              # Install composer if not present
+              if ! command -v composer &> /dev/null; then
+                curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+              fi
+              
+              # Clear Laravel caches first
+              php artisan config:clear
+              php artisan cache:clear
+              php artisan route:clear
+              php artisan view:clear
+              
+              # Drop all tables and run fresh migrations
+              php artisan db:wipe --force
+              php artisan migrate --force
+              php artisan db:seed --force
+              
+              # Start Laravel
+              php artisan serve --host=0.0.0.0 --port=80 --verbose
+````
+
+### Key changes:
+1. Added composer installation
+2. Replaced `migrate:fresh` with explicit steps:
+   - `db:wipe` to clean the database
+   - `migrate` to run migrations
+   - `db:seed` to seed the database
+3. Removed Faker installation since it should be part of the project dependencies
+
+After making these changes:
+
+```bash
+# Apply the changes
+kubectl apply -f single-cluster/servas/templates/deployment.yaml
+
+# Restart the deployment
+kubectl rollout restart deployment servas -n demo-project
+
+# Monitor the logs
+kubectl logs -f $(kubectl get pod -l app=servas -n demo-project -o jsonpath='{.items[0].metadata.name}') -n demo-project
+```
+
+This should resolve both the composer installation issue and the migration errors.
