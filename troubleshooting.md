@@ -76,6 +76,17 @@ ERROR 2026 (HY000): TLS/SSL error: SSL is required, but the server does not supp
 
 ```
 
+```
+# Apply the changes
+kubectl apply -f single-cluster/servas/templates/deployment.yaml
+
+# Restart the deployment
+kubectl rollout restart deployment servas -n demo-project
+
+# Monitor the logs
+kubectl logs -f $(kubectl get pod -l app=servas -n demo-project -o jsonpath='{.items[0].metadata.name}') -n demo-project
+```
+
 # 🎉 Great News - Application is Working!
 
 Let's document what fixed the issues for future reference:
