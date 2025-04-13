@@ -84,7 +84,7 @@ spec:
           chmod 644 /app/.env
 
           # Install Faker
-          composer require fakerphp/faker
+          # composer require fakerphp/faker
 
           # Clear Laravel caches first
           php artisan config:clear
