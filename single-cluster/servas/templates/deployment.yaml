@@ -24,7 +24,7 @@ spec:
             - /bin/sh
             - -c
             - |
-              # Create log directory and set permissions
+              # Create directories and set permissions
               mkdir -p /app/storage/logs
               chmod -R 775 /app/storage
               
@@ -32,16 +32,53 @@ spec:
               echo "error_reporting = E_ALL" > /usr/local/etc/php/conf.d/error-logging.ini
               echo "log_errors = On" >> /usr/local/etc/php/conf.d/error-logging.ini
               echo "error_log = /app/storage/logs/php_errors.log" >> /usr/local/etc/php/conf.d/error-logging.ini
+              echo "display_errors = On" >> /usr/local/etc/php/conf.d/error-logging.ini
+              
+              # Disable MySQL SSL requirement (MariaDB syntax)
+              cat << EOF > /etc/my.cnf
+              [client]
+              ssl=0
+              ssl-verify-server-cert=0
+              EOF
               
               # Write environment variables to .env file
-              printenv | grep -E '^(APP_KEY|APP_NAME|APP_ENV|APP_DEBUG|APP_URL|SERVAS_ENABLE_REGISTRATION|DB_CONNECTION|DB_HOST|DB_PORT|DB_DATABASE|DB_USERNAME|DB_PASSWORD|MYSQL_ATTR_SSL_VERIFY_SERVER_CERT|DB_SSL|DB_SSL_VERIFY)=' > /app/.env
-
-              # Clear Laravel caches
+              cat << EOF > /app/.env
+              APP_KEY="${APP_KEY}"
+              APP_NAME="${APP_NAME}"
+              APP_ENV="${APP_ENV}"
+              APP_DEBUG="${APP_DEBUG}"
+              APP_URL="${APP_URL}"
+              SERVAS_ENABLE_REGISTRATION="${SERVAS_ENABLE_REGISTRATION}"
+              DB_CONNECTION="${DB_CONNECTION}"
+              DB_HOST="${DB_HOST}"
+              DB_PORT="${DB_PORT}"
+              DB_DATABASE="${DB_DATABASE}"
+              DB_USERNAME="${DB_USERNAME}"
+              DB_PASSWORD="${DB_PASSWORD}"
+              MYSQL_ATTR_SSL_VERIFY_SERVER_CERT="${MYSQL_ATTR_SSL_VERIFY_SERVER_CERT}"
+              DB_SSL="${DB_SSL}"
+              DB_SSL_VERIFY="${DB_SSL_VERIFY}"
+              SESSION_DRIVER=file
+              EOF
+              
+              # Set proper permissions
+              chmod 644 /app/.env
+              
+              # Install Faker
+              composer require fakerphp/faker
+              
+              # Clear Laravel caches first
               php artisan config:clear
               php artisan cache:clear
-
+              php artisan route:clear
+              php artisan view:clear
+              
+              # Run fresh migrations with seed
+              echo "Running database migrations..."
+              php artisan migrate:fresh --force --seed
+              
               # Start Laravel
-              php artisan serve --host=0.0.0.0 --port=80
+              php artisan serve --host=0.0.0.0 --port=80 --verbose
           ports:
             - name: http
               containerPort: 80
@@ -55,7 +92,6 @@ spec:
                 secretKeyRef:
                   name: servas-secret
                   key: APP_KEY
-                  optional: true
             - name: DB_CONNECTION
               value: mysql
             - name: DB_HOST
@@ -76,6 +112,20 @@ spec:
               value: "false"
             - name: DB_SSL_VERIFY
               value: "false"
+            - name: MYSQL_SSL
+              value: "false"
+            - name: DB_OPTIONS_SSL_VERIFY_SERVER_CERT
+              value: "false"
+            - name: LARAVEL_LOAD_USER
+              value: "servas"
+            - name: LARAVEL_LOAD_PASSWORD
+              value: "servas"
+            - name: LARAVEL_LOAD_HOST
+              value: "mariadb"
+            - name: LARAVEL_LOAD_PORT
+              value: "3306"
+            - name: LARAVEL_LOAD_DATABASE
+              value: "servas"
       #     volumeMounts:
       #       - name: env-file
       #         mountPath: /app/.env

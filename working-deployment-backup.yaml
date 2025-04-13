@@ -1,0 +1,179 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "28"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"servas"},"name":"servas","namespace":"demo-project"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"servas"}},"template":{"metadata":{"labels":{"app":"servas"}},"spec":{"containers":[{"command":["/bin/sh","-c","# Create directories and set permissions\nmkdir -p /app/storage/logs\nchmod -R 775 /app/storage\n\n# Enable error logging\necho \"error_reporting = E_ALL\" \u003e /usr/local/etc/php/conf.d/error-logging.ini\necho \"log_errors = On\" \u003e\u003e /usr/local/etc/php/conf.d/error-logging.ini\necho \"error_log = /app/storage/logs/php_errors.log\" \u003e\u003e /usr/local/etc/php/conf.d/error-logging.ini\necho \"display_errors = On\" \u003e\u003e /usr/local/etc/php/conf.d/error-logging.ini\n\n# Disable MySQL SSL requirement (MariaDB syntax)\ncat \u003c\u003c EOF \u003e /etc/my.cnf\n[client]\nssl=0\nssl-verify-server-cert=0\nEOF\n\n# Write environment variables to .env file\ncat \u003c\u003c EOF \u003e /app/.env\nAPP_KEY=\"${APP_KEY}\"\nAPP_NAME=\"${APP_NAME}\"\nAPP_ENV=\"${APP_ENV}\"\nAPP_DEBUG=\"${APP_DEBUG}\"\nAPP_URL=\"${APP_URL}\"\nSERVAS_ENABLE_REGISTRATION=\"${SERVAS_ENABLE_REGISTRATION}\"\nDB_CONNECTION=\"${DB_CONNECTION}\"\nDB_HOST=\"${DB_HOST}\"\nDB_PORT=\"${DB_PORT}\"\nDB_DATABASE=\"${DB_DATABASE}\"\nDB_USERNAME=\"${DB_USERNAME}\"\nDB_PASSWORD=\"${DB_PASSWORD}\"\nMYSQL_ATTR_SSL_VERIFY_SERVER_CERT=\"${MYSQL_ATTR_SSL_VERIFY_SERVER_CERT}\"\nDB_SSL=\"${DB_SSL}\"\nDB_SSL_VERIFY=\"${DB_SSL_VERIFY}\"\nSESSION_DRIVER=file\nEOF\n\n# Set proper permissions\nchmod 644 /app/.env\n\n# Install Faker\ncomposer require fakerphp/faker\n\n# Clear Laravel caches first\nphp artisan config:clear\nphp artisan cache:clear\nphp artisan route:clear\nphp artisan view:clear\n\n# Run fresh migrations with seed\necho \"Running database migrations...\"\nphp artisan migrate:fresh --force --seed\n\n# Start Laravel\nphp artisan serve --host=0.0.0.0 --port=80 --verbose\n"],"env":[{"name":"APP_KEY","valueFrom":{"secretKeyRef":{"key":"APP_KEY","name":"servas-secret"}}},{"name":"DB_CONNECTION","value":"mysql"},{"name":"DB_HOST","value":"mariadb"},{"name":"DB_PORT","value":"3306"},{"name":"DB_DATABASE","value":"servas"},{"name":"DB_USERNAME","value":"servas"},{"name":"DB_PASSWORD","value":"servas"},{"name":"MYSQL_ATTR_SSL_VERIFY_SERVER_CERT","value":"false"},{"name":"MYSQL_SSL_REQUIRED","value":"false"},{"name":"DB_SSL","value":"false"},{"name":"DB_SSL_VERIFY","value":"false"},{"name":"MYSQL_SSL","value":"false"},{"name":"DB_OPTIONS_SSL_VERIFY_SERVER_CERT","value":"false"},{"name":"LARAVEL_LOAD_USER","value":"servas"},{"name":"LARAVEL_LOAD_PASSWORD","value":"servas"},{"name":"LARAVEL_LOAD_HOST","value":"mariadb"},{"name":"LARAVEL_LOAD_PORT","value":"3306"},{"name":"LARAVEL_LOAD_DATABASE","value":"servas"}],"envFrom":[{"configMapRef":{"name":"servas-env"}}],"image":"beromir/servas:latest","imagePullPolicy":"IfNotPresent","name":"servas","ports":[{"containerPort":80,"name":"http","protocol":"TCP"}]}],"serviceAccountName":"servas-sa"}}}}
+    meta.helm.sh/release-name: servas
+    meta.helm.sh/release-namespace: demo-project
+    objectset.rio.cattle.io/id: default-servas-single-cluster-servas
+  creationTimestamp: "2025-04-12T01:35:16Z"
+  generation: 29
+  labels:
+    app: servas
+    app.kubernetes.io/managed-by: Helm
+    objectset.rio.cattle.io/hash: 9444544ae2a15f85562d2c26824e3fa8d3a994b8
+  name: servas
+  namespace: demo-project
+  resourceVersion: "1069965"
+  uid: 0e282a02-2b7f-4301-aa50-4e3a1339ebf2
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: servas
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2025-04-13T09:25:16-07:00"
+      creationTimestamp: null
+      labels:
+        app: servas
+    spec:
+      containers:
+      - command:
+        - /bin/sh
+        - -c
+        - |
+          # Create directories and set permissions
+          mkdir -p /app/storage/logs
+          chmod -R 775 /app/storage
+
+          # Enable error logging
+          echo "error_reporting = E_ALL" > /usr/local/etc/php/conf.d/error-logging.ini
+          echo "log_errors = On" >> /usr/local/etc/php/conf.d/error-logging.ini
+          echo "error_log = /app/storage/logs/php_errors.log" >> /usr/local/etc/php/conf.d/error-logging.ini
+          echo "display_errors = On" >> /usr/local/etc/php/conf.d/error-logging.ini
+
+          # Disable MySQL SSL requirement (MariaDB syntax)
+          cat << EOF > /etc/my.cnf
+          [client]
+          ssl=0
+          ssl-verify-server-cert=0
+          EOF
+
+          # Write environment variables to .env file
+          cat << EOF > /app/.env
+          APP_KEY="${APP_KEY}"
+          APP_NAME="${APP_NAME}"
+          APP_ENV="${APP_ENV}"
+          APP_DEBUG="${APP_DEBUG}"
+          APP_URL="${APP_URL}"
+          SERVAS_ENABLE_REGISTRATION="${SERVAS_ENABLE_REGISTRATION}"
+          DB_CONNECTION="${DB_CONNECTION}"
+          DB_HOST="${DB_HOST}"
+          DB_PORT="${DB_PORT}"
+          DB_DATABASE="${DB_DATABASE}"
+          DB_USERNAME="${DB_USERNAME}"
+          DB_PASSWORD="${DB_PASSWORD}"
+          MYSQL_ATTR_SSL_VERIFY_SERVER_CERT="${MYSQL_ATTR_SSL_VERIFY_SERVER_CERT}"
+          DB_SSL="${DB_SSL}"
+          DB_SSL_VERIFY="${DB_SSL_VERIFY}"
+          SESSION_DRIVER=file
+          EOF
+
+          # Set proper permissions
+          chmod 644 /app/.env
+
+          # Install Faker
+          composer require fakerphp/faker
+
+          # Clear Laravel caches first
+          php artisan config:clear
+          php artisan cache:clear
+          php artisan route:clear
+          php artisan view:clear
+
+          # Run fresh migrations with seed
+          echo "Running database migrations..."
+          php artisan migrate:fresh --force --seed
+
+          # Start Laravel
+          php artisan serve --host=0.0.0.0 --port=80 --verbose
+        env:
+        - name: APP_KEY
+          valueFrom:
+            secretKeyRef:
+              key: APP_KEY
+              name: servas-secret
+        - name: DB_CONNECTION
+          value: mysql
+        - name: DB_HOST
+          value: mariadb
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_DATABASE
+          value: servas
+        - name: DB_USERNAME
+          value: servas
+        - name: DB_PASSWORD
+          value: servas
+        - name: MYSQL_ATTR_SSL_VERIFY_SERVER_CERT
+          value: "false"
+        - name: MYSQL_SSL_REQUIRED
+          value: "false"
+        - name: DB_SSL
+          value: "false"
+        - name: DB_SSL_VERIFY
+          value: "false"
+        - name: MYSQL_SSL
+          value: "false"
+        - name: DB_OPTIONS_SSL_VERIFY_SERVER_CERT
+          value: "false"
+        - name: LARAVEL_LOAD_USER
+          value: servas
+        - name: LARAVEL_LOAD_PASSWORD
+          value: servas
+        - name: LARAVEL_LOAD_HOST
+          value: mariadb
+        - name: LARAVEL_LOAD_PORT
+          value: "3306"
+        - name: LARAVEL_LOAD_DATABASE
+          value: servas
+        envFrom:
+        - configMapRef:
+            name: servas-env
+        image: beromir/servas:latest
+        imagePullPolicy: IfNotPresent
+        name: servas
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: servas-sa
+      serviceAccountName: servas-sa
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2025-04-12T01:35:19Z"
+    lastUpdateTime: "2025-04-12T01:35:19Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2025-04-12T01:35:16Z"
+    lastUpdateTime: "2025-04-13T16:25:19Z"
+    message: ReplicaSet "servas-788674b69b" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 29
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
