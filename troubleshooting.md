@@ -23,7 +23,7 @@ nc -z 10.109.111.48 3360
 
 ## Server 500 Error
 servas-secret: 
-base64:53lG5CvJmaK2Vx2ZJ6VOwsKEmYEdvmKkX+VD4UjJ1aU=
+base64:<secret-long-string>
 
 
 Check the servas:stats
@@ -72,7 +72,7 @@ ERROR 2026 (HY000): TLS/SSL error: SSL is required, but the server does not supp
 /app # 
 ```
 
-     k exec --stdin --tty servas-685f558bcf-zg6tb -n demo-project -- mysql -h mariadb -u servas -pservas --skip-ssl -e "SHOW DATABASES;"
+     k exec --stdin --tty servas-<pod-name> -n demo-project -- mysql -h mariadb -u servas -pservas --skip-ssl -e "SHOW DATABASES;"
 
 ```
 
@@ -98,7 +98,8 @@ Let's document what fixed the issues for future reference:
    - Added proper database connection environment variables
 
 2. **Environment Setup**
-   - Created dynamic `.env` file with all required variables
+   - Created dynamic `.env` file with all required variables 
+   _Note: Need to remove this as the volume mount where the file is written is not used_
    - Set correct file permissions (644)
    - Included `SESSION_DRIVER=file` setting
 
@@ -135,7 +136,6 @@ kubectl get pods -n demo-project -l app=servas
 - Resource limits
 - Horizontal Pod Autoscaling (HPA)
 - Regular database backups
-
 
 
 # Fix Laravel Database Migration and Composer Issues
