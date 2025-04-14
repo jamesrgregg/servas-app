@@ -18,12 +18,6 @@ The service defined for the `servas-service` is set as a `NodePort` and will req
 ├── README.md
 ├── fleet-servas-mariadb.yaml
 └── single-cluster
-    ├── busybox
-    │   ├── chart.yaml
-    │   ├── fleet.yaml
-    │   ├── templates
-    │   │   └── deployment.yaml
-    │   └── values.yaml
     ├── mariadb
     │   ├── chart.yaml
     │   ├── fleet.yaml
