@@ -48,7 +48,7 @@ spec:
   paths:
     - single-cluster/mariadb
     - single-cluster/servas
-    - single-cluster/busybox
+
 ```
 Configure Kubernetes cluster for Fleet deployments following the [documentation](https://fleet.rancher.io/quickstart).
 
